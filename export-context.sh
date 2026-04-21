@@ -11,6 +11,9 @@
 
 set -e
 
+# Get the directory where the script lives (the package root)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 TARGET=$1
 SCOPE=${2:-both}
 OUTPUT_DIR=${3:-$(pwd)}
@@ -98,7 +101,7 @@ export_prompt() {
         REFERENCED_SKILLS["$skill_ref"]=1
         
         # Inline the skill content
-        local skill_path="skills/$skill_ref/SKILL.md"
+        local skill_path="$SCRIPT_DIR/skills/$skill_ref/SKILL.md"
         if [[ -f "$skill_path" ]]; then
             body=$(inline_skill "$skill_path")
         fi
@@ -207,8 +210,8 @@ echo "Exporting [$SCOPE] to $TARGET..."
 
 # First pass: export prompts (this will mark which skills are referenced)
 if [[ "$SCOPE" == "prompts" || "$SCOPE" == "both" ]]; then
-    if [[ -d "prompts" ]]; then
-        for f in prompts/*.md; do
+    if [[ -d "$SCRIPT_DIR/prompts" ]]; then
+        for f in "$SCRIPT_DIR/prompts"/*.md; do
             [ -e "$f" ] || continue
             export_prompt "$f" "$OUTPUT_DIR/$PROMPT_DIR"
         done
@@ -217,8 +220,8 @@ fi
 
 # Second pass: export unreferenced skills
 if [[ "$SCOPE" == "skills" || "$SCOPE" == "both" ]]; then
-    if [[ -d "skills" ]]; then
-        for d in skills/*/; do
+    if [[ -d "$SCRIPT_DIR/skills" ]]; then
+        for d in "$SCRIPT_DIR/skills"/*/; do
             [ -e "${d}SKILL.md" ] || continue
             export_skill "${d}SKILL.md" "$OUTPUT_DIR/$SKILL_DIR"
         done
