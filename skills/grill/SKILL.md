@@ -1,20 +1,21 @@
 ---
 name: grill
-description: Grill Step — removes ambiguity from idea, research, analysis, or plan documents through targeted Q&A
+description: Grill Step — validates and challenges concepts across the specification process
 ---
 # Grill Workflow
 
-Reads one or more specification documents, identifies ambiguities, contradictions, and gaps, then resolves them through a structured Q&A loop. For each question, a recommended answer is provided — the user confirms, corrects, or rejects it. Resolved answers are written back across all affected documents.
+Reads one or more specification documents (idea, analysis, or plan), identifies ambiguities, contradictions, and gaps, then resolves them through a structured Q&A loop. For each question, a recommended answer is provided — the user confirms, corrects, or rejects it. Resolved answers are written back across all affected documents.
+
+This skill can be used at any stage to validate and challenge concepts, ensuring clarity before moving forward.
 
 ## Step 1: Locate Documents
 
 Determine `{working-dir}` and `{spec-name}` from context. If ambiguous, ask the user.
 
 Read all present spec files for this spec:
-- `{working-dir}/specification/{spec-name}__idea.md`
-- `{working-dir}/specification/{spec-name}__research.md`
-- `{working-dir}/specification/{spec-name}__analysis.md`
-- `{working-dir}/specification/{spec-name}__plan.md`
+- `{working-dir}/specification/{spec-name}/{spec-name}_idea.md`
+- `{working-dir}/specification/{spec-name}/{spec-name}_analysis.md`
+- `{working-dir}/specification/{spec-name}/{spec-name}_plan.md`
 - `{working-dir}/specification/{spec-name}/plan/*.md` (phase files if present)
 
 If none of these exist, stop and ask the user what to grill.
@@ -28,15 +29,15 @@ Scan all documents and catalogue every ambiguity, gap, or inconsistency. Classif
 - **Minor** — wording or edge case that should be clarified but is not blocking
 
 Look for:
-- `[NEEDS CLARIFICATION]` items in any document
+- Open questions in any document
 - Terms used inconsistently across documents
-- Acceptance criteria that are not testable (too vague)
-- User stories missing a clear actor, action, or outcome
-- Edge cases described in one document but not handled in the plan
-- Contradictions between documents (e.g. data model in research differs from plan)
-- Assumptions stated as decisions without rationale
+- Concepts defined in idea but not carried through to analysis
+- Technical decisions in analysis without clear rationale
+- Contradictions between documents (e.g., scope in idea differs from plan)
+- Assumptions stated as facts without justification
 - Steps in the plan with no clear done criteria or testable outcome
 - Data models that are underspecified or differ between documents
+- Missing references or documentation pointers
 
 ## Step 3: Grill Loop
 
@@ -51,7 +52,7 @@ Format:
 
 ### Q{N}.1: [Blocking|Risk|Minor] — [Short issue title]
 **Issue:** [One sentence describing the ambiguity or gap.]
-**Found in:** [`__analysis.md` / `__plan.md` / etc.]
+**Found in:** [`{spec-name}_idea.md` / `{spec-name}_analysis.md` / `{spec-name}_plan.md` / etc.]
 **Recommended answer:** [Your best answer given the available context. Be specific.]
 
 ---
@@ -67,7 +68,7 @@ Format:
 Once all responses for the round are received, update every affected document to reflect the resolved answers:
 - Edit the existing content in place — rewrite the relevant section, sentence, or value to match the agreed answer.
 - Do not add decision logs, resolution notes, or commentary sections. The document should read as if it was always written this way.
-- Remove resolved `[NEEDS CLARIFICATION]` items entirely.
+- Remove resolved open questions entirely.
 - If an answer affects the same concept in multiple documents, update all of them in the same pass.
 
 Repeat rounds until one of:
@@ -79,9 +80,10 @@ Repeat rounds until one of:
 After the Q&A loop, check that all documents are mutually consistent:
 
 - Terminology: the same concept uses the same name everywhere.
-- Data models: field names, types, and shapes match across research, analysis, and plan.
-- Scope: nothing in the plan contradicts the Out of Scope section of the analysis.
-- Acceptance criteria: every criterion in `__analysis.md` is addressed by at least one step or test in the plan.
+- Concepts: key concepts from `_idea.md` are properly elaborated in `_analysis.md`.
+- Data models: field names, types, and shapes match across analysis and plan.
+- Scope: nothing in the plan contradicts the scope boundaries in the idea or analysis.
+- Technical decisions: decisions in analysis are reflected in the plan implementation.
 
 Update any document where inconsistencies are found. List every change made.
 

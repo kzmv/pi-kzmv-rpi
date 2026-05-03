@@ -11,11 +11,10 @@ Called when a `/gen-specs` plan is estimated to exceed ~10,000 tokens. Converts 
 Determine `{working-dir}` and `{spec-name}` from context. If ambiguous, ask the user.
 
 Read:
-- `{working-dir}/specification/{spec-name}__plan.md` — the existing plan to be split (required)
-- `{working-dir}/specification/{spec-name}__research.md` — source of references (read if present)
-- `{working-dir}/specification/{spec-name}__analysis.md` — for scope and acceptance criteria context (read if present)
+- `{working-dir}/specification/{spec-name}/{spec-name}_plan.md` — the existing plan to be split (required)
+- `{working-dir}/specification/{spec-name}/{spec-name}_analysis.md` — for scope and acceptance criteria context (read if present)
 
-If `__plan.md` does not exist, stop and ask the user to run `/gen-specs` first.
+If `{spec-name}_plan.md` does not exist, stop and ask the user to run `/gen-specs` first.
 
 ## Step 2: Identify Phases
 
@@ -40,15 +39,15 @@ Proceed with this breakdown? (yes / adjust)
 
 **Stop and wait for confirmation.**
 
-## Step 3: Rewrite `__plan.md` as Index
+## Step 3: Rewrite Plan as Index
 
-Update `{working-dir}/specification/{spec-name}__plan.md` in place. Replace the detailed step content with a high-level index. Keep the references and scope sections intact.
+Update `{working-dir}/specification/{spec-name}/{spec-name}_plan.md` in place. Replace the detailed step content with a high-level index. Keep the references and scope sections intact.
 
 ```markdown
 # {Spec Name} — Implementation Plan (Index)
 
-## Scope
-[Summary of what this plan covers. Unchanged from original.]
+## Summary
+[2-3 sentences: what this plan covers. Unchanged from original.]
 
 ## References
 | Source | Link / Path | Summary |
@@ -61,8 +60,8 @@ Update `{working-dir}/specification/{spec-name}__plan.md` in place. Replace the 
 ## Phase Breakdown
 | Phase | File | Description |
 |---|---|---|
-| 1 | `{spec-name}/plan/01-{phase-name}.md` | [What this phase covers] |
-| 2 | `{spec-name}/plan/02-{phase-name}.md` | [What this phase covers] |
+| 1 | `plan/01-{phase-name}.md` | [What this phase covers] |
+| 2 | `plan/02-{phase-name}.md` | [What this phase covers] |
 | ... | ... | ... |
 
 ## Dependency Order
@@ -74,9 +73,11 @@ Update `{working-dir}/specification/{spec-name}__plan.md` in place. Replace the 
 
 ## Step 4: Generate Phase Detail Files
 
-Create one file per phase in `{working-dir}/specification/{spec-name}/plan/`.
+Create the directory `{working-dir}/specification/{spec-name}/plan/` if it doesn't exist.
 
-File naming: `{zero-padded-index}-{phase-name}.md` (e.g. `01-data-model.md`, `02-api-layer.md`).
+Create one file per phase in that directory.
+
+File naming: `{zero-padded-index}-{phase-name}.md` (e.g., `01-data-model.md`, `02-api-layer.md`).
 
 **Code conventions for phase detail files:**
 - Snippets must cover edge cases and error handling patterns, not just the happy path.
@@ -97,7 +98,7 @@ Each file follows this template:
 [1–2 sentences describing where this phase fits in the overall plan and what must be true before it starts.]
 
 ## References
-> Subset of references from `__research.md` and `__plan.md` relevant to this phase only.
+> Subset of references from `{spec-name}_analysis.md` and `{spec-name}_plan.md` relevant to this phase only.
 
 | Source | Link / Path | Summary |
 |---|---|---|
@@ -122,7 +123,7 @@ Each file follows this template:
 ...
 
 ## Testing Requirements
-> Integration and acceptance-level tests run after all steps in this phase are complete. These span multiple steps or verify end-to-end behaviour against acceptance criteria in `__analysis.md`.
+> Integration and acceptance-level tests run after all steps in this phase are complete. These span multiple steps or verify end-to-end behaviour against acceptance criteria in `{spec-name}_analysis.md`.
 - [ ] [Test case specific to this phase]
 
 ## Done Criteria
@@ -132,19 +133,19 @@ Each file follows this template:
 ## Step 5: Quality Checklist
 
 Before finalising:
-- [ ] `__plan.md` is a lean index — no implementation detail, only scope, references, phase table, and approach
+- [ ] `{spec-name}_plan.md` is a lean index — no implementation detail, only summary, references, phase table, and approach
 - [ ] Every phase in the index has a corresponding detail file
 - [ ] Each detail file is self-contained enough for an agent to execute without reading the full plan
 - [ ] References in each detail file are the subset relevant to that phase only
 - [ ] Phase dependency order is documented in the index
-- [ ] Done criteria in each detail file map to acceptance criteria in `__analysis.md`
+- [ ] Done criteria in each detail file map to acceptance criteria in `{spec-name}_analysis.md`
 - [ ] File names are zero-padded and kebab-cased
 
 ## Step 6: Output Summary
 
 Report to the user:
 1. **Files updated:**
-   - `{working-dir}/specification/{spec-name}__plan.md` (converted to index)
+   - `{working-dir}/specification/{spec-name}/{spec-name}_plan.md` (converted to index)
 2. **Phase files created:**
    - `{working-dir}/specification/{spec-name}/plan/01-{phase}.md`
    - `{working-dir}/specification/{spec-name}/plan/02-{phase}.md`

@@ -1,30 +1,31 @@
 ---
 name: gen-specs
-description: Specification Generation Step
+description: Specification Generation Step — breaks down analysis into executable plan
 ---
 # Specification Generation Workflow
 
+Transforms analysis into an executable implementation plan with concrete, actionable steps.
+
 ## Step 1: Locate Starting Context
 
-Determine `{working-dir}` from workspace context (the project root where `specification/` lives). If ambiguous, ask the user.
+Determine `{working-dir}` and `{spec-name}` from workspace context. If ambiguous, ask the user.
 
-Check for `{spec-name}__idea.md` in `{working-dir}/specification/`:
-- If found, read it as the primary input.
-- If not found, **stop and ask the user** to describe the feature or task in enough detail. Do not proceed with assumptions.
+Read the following files:
+- `{working-dir}/specification/{spec-name}/{spec-name}_analysis.md` — **required**, technical direction and decisions
+- `{working-dir}/specification/{spec-name}/{spec-name}_idea.md` — optional, high-level context
 
-Also read if present:
-- `{working-dir}/specification/{spec-name}__research.md` — context from the `/research-and-analyse` step
+If `{spec-name}_analysis.md` does not exist, **stop and ask the user** to run `/research-and-analyse` first.
 
-## Step 2: Clarify Before Proceeding
+## Step 2: Clarify Before Planning
 
-Identify open questions before generating any documents. Ask up to 5 per round; chunk further questions into follow-up rounds.
+Review the analysis for any unresolved `## Open Questions`. If present, address them before generating the plan. Ask up to 5 per round.
 
-Focus areas:
-1. **Scope** — What problem does this solve? What is explicitly out of scope?
-2. **Actors** — Who uses this? What are their goals?
-3. **Data** — What is created, read, updated, or deleted?
-4. **Constraints** — Performance, security, compatibility, or integration limits.
-5. **Edge Cases** — Failure modes, boundary conditions, error paths.
+Additional clarification areas if needed:
+1. **Implementation details** — Specific files, modules, or functions to modify?
+2. **Data structures** — Are all data models fully specified?
+3. **Testing strategy** — What level of testing is expected?
+4. **Deployment** — Any migration or rollout considerations?
+5. **Edge cases** — Are all error paths and boundary conditions clear?
 
 Format:
 ```markdown
@@ -39,84 +40,37 @@ Format:
 
 **Stop and wait for responses before continuing.**
 
-## Step 3: Generate Analysis Document
+## Step 3: Generate Implementation Plan
 
-**Code conventions for this document:**
-- Snippets should illustrate design patterns, API shape, and concept reuse — not implementation detail or edge cases.
-- Data models must be detailed; prefer JSON.
-- CLI commands must include all flags required to run them in sequence; reference official docs before specifying flags.
-- Always link to official documentation before describing how a tool or API works.
-
-Create `{working-dir}/specification/{spec-name}__analysis.md`:
-
-```markdown
-# {Spec Name} — Analysis
-
-## Overview
-[One paragraph: the problem being solved and the proposed solution approach.]
-
-## User Stories
-- As a [role], I want to [action] so that [outcome].
-- As a [role], I want to [action] so that [outcome].
-
-## Acceptance Criteria
-- [ ] [Testable criterion]
-- [ ] [Testable criterion]
-
-## Edge Cases
-| Scenario | Expected Behaviour |
-|---|---|
-| [Edge case] | [What should happen] |
-| [Edge case] | [What should happen] |
-
-## Design Decisions
-### [Decision Title]
-- **Choice:** [What was decided]
-- **Rationale:** [Why]
-- **Alternatives:** [Other options considered]
-
-## Technical Requirements
-1. [Requirement]
-2. [Requirement]
-
-## Code Patterns
-[Snippets that document design patterns, API contracts, and structural conventions. Detailed JSON data models go here. CLI sequences must include all required flags and reference linked docs.]
-
-## Out of Scope
-- [Excluded item]
-
-## [NEEDS CLARIFICATION]
-- [ ] [Open question or ambiguity to resolve before implementation]
-
-```
-
-Place any supporting diagrams or reference files in `{working-dir}/specification/attachments/` and reference them with relative paths in the document.
-
-## Step 4: Generate Implementation Plan
-
-Before writing, estimate whether the full plan content will exceed ~10,000 tokens. If it will, write only the index structure (scope, references, phase breakdown) and call `/detail-plan` to produce the detail files. Do not write a monolithic plan file when the plan is large.
+Before writing, estimate whether the full plan content will exceed ~10,000 tokens. If it will, write only the index structure (scope, references, phase breakdown) and **stop**, instructing the user to run `/detail-plan` to produce the detail files. Do not write a monolithic plan file when the plan is large.
 
 **Testing approach:**
 - Each step has a `Tests` field for step-level verification — unit tests, assertions, or smoke checks run immediately after that step to confirm it is correct before moving on.
 - `## Testing Requirements` at the end covers integration and acceptance-level tests that span multiple steps or verify end-to-end behaviour. These run after all steps are complete.
 
-Create `{working-dir}/specification/{spec-name}__plan.md`:
+**Code conventions for the plan:**
+- Snippets must cover edge cases and error handling patterns, not just the happy path.
+- Data models must be detailed; prefer JSON.
+- CLI commands must include all flags required to run them; reference official docs before specifying flags.
+- Always link to official documentation before describing how a tool or API works.
+
+Create `{working-dir}/specification/{spec-name}/{spec-name}_plan.md`:
 
 ```markdown
 # {Spec Name} — Implementation Plan
 
-## Scope
-[Summary of what this plan covers.]
+## Summary
+[2-3 sentences: what this plan implements and the approach taken.]
 
 ## References
-> Carry forward from `{spec-name}__research.md`. Include only the sources directly relevant to implementation. This section gives any executing agent the minimum context needed without re-reading all prior documents.
+> Carry forward from `{spec-name}_analysis.md`. Include only the sources directly relevant to implementation.
 
 | Source | Link / Path | Summary |
 |---|---|---|
 | [Name] | [URL or file path] | [One-line summary of what it provides] |
 
 ## Prerequisites
-- [Any dependency or setup required before starting.]
+- [Any dependency or setup required before starting]
 
 ## Implementation Steps
 
@@ -140,27 +94,27 @@ Create `{working-dir}/specification/{spec-name}__plan.md`:
 
 ```
 
-## Step 5: Quality Checklist
+## Step 4: Quality Checklist
 
 Before finalising, verify:
-- [ ] `{spec-name}__idea.md` or equivalent user input was used as context
-- [ ] Every user story has at least one acceptance criterion
-- [ ] Edge cases are documented in the analysis
-- [ ] `[NEEDS CLARIFICATION]` items are flagged for any remaining ambiguities
-- [ ] No project-specific assumptions are hardcoded without basis in provided context
-- [ ] Attachments referenced in documents exist in `{working-dir}/specification/attachments/`
-- [ ] Plan references section is populated from `__research.md` (links + summaries)
+- [ ] `{spec-name}_analysis.md` was used as the primary input
+- [ ] All open questions from analysis are resolved
 - [ ] Plan steps are specific and actionable
-- [ ] If plan exceeds ~10,000 tokens, `/detail-plan` was called instead of writing a monolithic file
+- [ ] Each step has clear files to create/modify
+- [ ] Step-level tests are defined for each step
+- [ ] Integration tests are defined at the end
+- [ ] References section is populated from `_analysis.md`
+- [ ] If plan exceeds ~10,000 tokens, stop and instruct user to run `/detail-plan`
 
-## Step 6: Output Summary
+## Step 5: Output Summary
 
 Report to the user:
 1. **Files created:**
-   - `{working-dir}/specification/{spec-name}__analysis.md`
-   - `{working-dir}/specification/{spec-name}__plan.md` (or index + detail files if `/detail-plan` was called)
-2. **Attachments:** list any files placed in `attachments/`
-3. **Open items:** list any `[NEEDS CLARIFICATION]` entries
-4. **Next step:** use `/impl-specs` to execute the implementation plan
+   - `{working-dir}/specification/{spec-name}/{spec-name}_plan.md`
+2. **Steps:** [count]
+3. **Large plan:** if plan is large, note that user should run `/detail-plan` next
+4. **Next step:** 
+   - If plan is manageable size: run `/impl-specs` to execute
+   - If plan is large: run `/detail-plan` to split into phases first
 
-**Do not implement.** Stop after generating specification files.
+**Do not implement.** Stop after generating the plan file.

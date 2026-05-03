@@ -1,31 +1,33 @@
 ---
 name: research-and-analyse
-description: Research and Analysis Step
+description: Research and Analysis Step — deep dive into technical details and clarification
 ---
 # Research and Analysis Workflow
 
+Focuses on deep diving into a topic, figuring out documentation, clarifying concepts, and ensuring shared technical understanding. This step transforms a high-level idea into detailed analysis ready for planning.
+
 ## Step 1: Locate Starting Context
 
-Determine `{working-dir}` from workspace context (the project root where `specification/` lives). If ambiguous, ask the user.
+Determine `{working-dir}` and `{spec-name}` from workspace context. If ambiguous, ask the user.
 
-Check for `{spec-name}__idea.md` in `{working-dir}/specification/`:
+Check for `{working-dir}/specification/{spec-name}/{spec-name}_idea.md`:
 - If found, read it as the starting point.
-- If not found, **stop and ask the user** to describe the high-level idea. Do not proceed with assumptions.
+- If not found, **stop and ask the user** to run `/idea-plan` first or provide the high-level concept.
 
-## Step 2: Understand the Problem Space (Q&A Loop)
+## Step 2: Deep Dive into Technical Details (Q&A Loop)
 
-Ask focused questions to build a shared understanding of the problem space. Limit to 3–5 questions per round. After each round of answers, assess whether the direction is clear. Continue until the user confirms the direction is understood.
+Ask focused questions to dive deeper into technical details and clarify the approach. Limit to 3–5 questions per round. After each round of answers, assess whether you have enough clarity. Continue until the user confirms the technical direction is understood.
 
 Focus areas:
-1. **Problem** — What is being solved? For whom?
-2. **Context** — What existing systems, codebases, or services are involved?
-3. **External references** — Relevant documentation, repos, libraries, or APIs?
-4. **Constraints** — Technical, organisational, or timeline limits?
-5. **Success criteria** — How is the right direction identified?
+1. **Technical approach** — What technologies, libraries, or patterns should be used?
+2. **Existing systems** — What codebases, services, or APIs are involved?
+3. **Documentation** — What official docs, specs, or standards apply?
+4. **Constraints** — Performance, security, compatibility limits?
+5. **Language and terminology** — Are we using terms consistently? Do we speak the same technical language?
 
 Format:
 ```markdown
-## Research Questions
+## Research Questions — Round {N}
 
 ### Q1: [Topic]
 [Question]
@@ -34,11 +36,11 @@ Format:
 [Question]
 ```
 
-**Stop and wait for answers. Repeat rounds until the user confirms the direction is clear.**
+**Stop and wait for answers. Repeat rounds until the user confirms the technical direction is clear.**
 
 ## Step 3: Curate Sources and References
 
-Gather and organise relevant context. For each source, capture:
+Gather and organise relevant technical context. For each source, capture:
 - What it is
 - Why it is relevant
 - Where to find it (URL, file path, repo, or reference)
@@ -47,29 +49,35 @@ Source types to consider:
 - External documentation (APIs, libraries, standards, specs)
 - Internal code references (files, modules, services, interfaces)
 - Prior art or comparable implementations (external repos, articles)
-- Architecture diagrams or decision records already in the project
+- Architecture diagrams or decision records
 
-Store any downloaded or generated reference files (diagrams, exported docs, screenshots) in `{working-dir}/specification/attachments/`.
+Store any downloaded or generated reference files (diagrams, exported docs, screenshots) in `{working-dir}/specification/{spec-name}/attachments/`.
 
-## Step 4: Generate Research Document
+## Step 4: Generate Analysis Document
 
 **Code conventions for this document:**
 - Snippets may be pseudo-code; they do not need to compile or run.
-- Keep snippets short — enough to communicate the idea, not a full implementation.
+- Keep snippets short — enough to communicate the technical approach, not a full implementation.
 - Data model definitions prefer JSON over class or type syntax.
-- CLI commands: show intent and general shape only; not all flags need to be included.
+- CLI commands: show intent and general shape; include key flags but not necessarily all.
 - Always link to official documentation before describing how a tool or API works.
 
-Create `{working-dir}/specification/{spec-name}__research.md`:
+Create `{working-dir}/specification/{spec-name}/{spec-name}_analysis.md`:
 
 ```markdown
-# {Spec Name} — Research
+# {Spec Name} — Analysis
 
 ## Summary
-[2–3 sentences: the problem space and the scope of this research.]
+[2–3 sentences: the problem space and the technical approach chosen.]
 
-## Direction Decision
-[Clear statement of the chosen general direction. What approach is being taken and why.]
+## Technical Direction
+[Clear statement of the chosen technical direction. What approach is being taken and why? What technologies, patterns, or architectures apply?]
+
+## Terminology and Concepts
+[Define technical terms and concepts to ensure shared understanding. Clarify any domain-specific language.]
+
+### [Term or Concept]
+[Definition and how it applies to this work.]
 
 ## Key Sources and References
 
@@ -78,7 +86,7 @@ Create `{working-dir}/specification/{spec-name}__research.md`:
 |---|---|---|
 | [Name] | [file path or module] | [Why relevant] |
 
-### External References
+### External Documentation
 | Reference | URL or source | Relevance |
 |---|---|---|
 | [Name] | [URL] | [Why relevant] |
@@ -89,41 +97,48 @@ Create `{working-dir}/specification/{spec-name}__research.md`:
 | `attachments/{filename}` | [What it contains] |
 
 ## Technical Sketches
-[Optional. Pseudo-code, JSON shapes, or short snippets that communicate the core idea. Does not need to compile. Link to relevant docs from Key Sources above before describing any tool or API.]
+[Optional. Pseudo-code, JSON shapes, or short snippets that communicate the technical approach. Does not need to compile. Link to relevant docs from Key Sources above before describing any tool or API.]
 
 ## Alternatives Considered
 ### [Alternative A]
 - **Summary:** [Brief description]
 - **Reason not chosen:** [Why rejected or deferred]
 
-## Context to Carry Forward
-[Knowledge, decisions, and constraints that /gen-specs should use.]
-- [Item]
-- [Item]
+## Design Decisions
+### [Decision Title]
+- **Decision:** [What was decided]
+- **Rationale:** [Why this approach was chosen]
+- **Trade-offs:** [What was gained and what was sacrificed]
 
-## General Idea Summary
-[1–2 paragraphs: plain-language description of what is being built and the chosen approach. Written as a brief for the specification step.]
+## Constraints and Requirements
+[Technical constraints, performance requirements, compatibility needs, security considerations.]
+- [Constraint or requirement]
+
+## Dependencies
+[External libraries, services, or systems this work depends on.]
+- [Dependency and version if applicable]
 
 ## Open Questions
-- [ ] [Unresolved item for /gen-specs to address]
+- [ ] [Unresolved technical question to address in planning]
+- [ ] [Unresolved question]
 ```
 
 ## Step 5: Attachments
 
-Place supporting files in `{working-dir}/specification/attachments/`:
+Place supporting files in `{working-dir}/specification/{spec-name}/attachments/`:
 - Architecture diagrams (`.excalidraw.svg`, `.svg`, `.png`)
 - Screenshots or reference images
 - Exported documentation or external specs
 
-Reference all attachments from the research document using relative paths.
+Reference all attachments from the analysis document using relative paths (e.g., `attachments/diagram.svg`).
 
 ## Step 6: Output Summary
 
 Report to the user:
 1. **Files created:**
-   - `{working-dir}/specification/{spec-name}__research.md`
+   - `{working-dir}/specification/{spec-name}/{spec-name}_analysis.md`
 2. **Attachments:** list any files placed in `attachments/`
-3. **Open questions:** list unresolved items for the next step
-4. **Next step:** run `/gen-specs` to produce the detailed analysis and implementation plan
+3. **Open questions:** list unresolved technical items for the next step
+4. **Next step:** run `/gen-specs` to break down the analysis into an executable implementation plan
 
-**Do not produce implementation plans or detailed specifications here.** Detailed planning is handled by `/gen-specs`.
+**Do not produce implementation plans here.** Planning is handled by `/gen-specs`.
